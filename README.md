@@ -136,13 +136,15 @@ The training progression (Loss vs. Accuracy curves) and performance comparisons 
 ### 3. Application Screenshots
 
 #### Cinematic Landing Page
-![Cinematic Landing Page](./public/readme/landing_page.png)
+![Cinematic Landing Page](./public/readme/video_link.png)
 
-#### Video Link Playback (YouTube Proxy)
-![YouTube Video Link Translation](./public/readme/video_link.png)
+#### Video Link Playback 
+![YouTube Video Link Translation](./public/readme/landing_page.png)
 
-#### Video Upload Translation (Deaf Coffee Chat)
-![Local Video Upload Translation](./public/readme/uploaded_video.png)
+
+#### Video Upload Translation 
+![Local Video Upload Translation](./public/readme/developers.png)
 
 #### Meet the Developers
-![Developer Profiles Grid](./public/readme/developers.png)
+![Developer Profiles Grid](./public/readme/uploaded_video.png)
+
