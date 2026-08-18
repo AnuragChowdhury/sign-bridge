@@ -1,235 +1,111 @@
-# SignBridge 🤟
+# SignBridge: Real-Time Multi-Language AI Sign Language Keyboard
 
-AI-powered real-time multilingual sign language keyboard for Android.
-
-SignBridge detects hand gestures through the smartphone's front camera, recognizes sign language gestures using on-device TensorFlow Lite models, and converts them into editable text — all fully offline.
+SignBridge is an advanced, AI-powered communication bridge designed to break down barriers between the Deaf and Hard-of-Hearing communities and the hearing world. By extracting real-time hand landmarks from video feeds, the system processes gesture sequences through optimized deep learning models to predict sign glosses and translates them into fluent, context-aware English sentences using Large Language Models (LLMs).
 
 ---
 
-## ✨ Features
+## 🌟 Key Features
 
-- **Real-time recognition** — Gesture detection at 30+ FPS
-- **Fully offline** — No internet required, all inference runs on-device
-- **Multi-language support** — ASL, BSL, IPSL, CSL with dynamic switching
-- **Smart text composition** — Temporal smoothing, duplicate suppression, auto-spacing
-- **Material Design 3** — Modern, accessible UI with light/dark themes
-- **History tracking** — Save, reuse, and share recognized text
-- **Customizable settings** — Confidence threshold, camera resolution, display options
-
----
-
-## 🏗️ Architecture
-
-```
-┌──────────────────────────────────────────────┐
-│                    UI Layer                   │
-│  Screens • Widgets • Themes (Material 3)     │
-├──────────────────────────────────────────────┤
-│              State Management                 │
-│              Riverpod Providers               │
-├──────────────────────────────────────────────┤
-│              Repository Layer                 │
-│  ModelRepo • SettingsRepo • HistoryRepo      │
-├──────────────────────────────────────────────┤
-│               Service Layer                   │
-│  Camera • Landmarks • TFLite • Smoothing     │
-│  SentenceBuilder • Storage                   │
-├──────────────────────────────────────────────┤
-│                Core Layer                     │
-│  Models • Constants • Errors • Utils         │
-└──────────────────────────────────────────────┘
-```
-
-### AI Processing Pipeline
-
-```
-Front Camera → MediaPipe Hand Landmarks → 21 Points (x,y,z)
-    → Feature Normalization (63 floats)
-    → TFLite Gesture Classifier
-    → Temporal Smoothing (majority voting + EMA)
-    → Sentence Builder → Editable Text
-```
+*   **Multi-Language Support**: Real-time translation of **ASL** (American Sign Language), **WSL** (Word-level ASL / WLASL), **ISL** (Indian Sign Language), and **ArSL** (Argentine Sign Language / LSA64).
+*   **Three High-Performance Input Modes**:
+    1.  **Live Webcam**: Interactive mirror-aligned camera feed with immediate local gesture predictions.
+    2.  **Video Upload**: Support for local MP4/WebM files to translate pre-recorded sign dialogues.
+    3.  **Video Link**: Resolves online streaming URLs (including YouTube video links) using a backend proxy resolver.
+*   **Real-Time Landmark Visualization**: Precision canvas overlays render hand skeleton nodes and bone connections at 60 FPS.
+*   **Word-by-Word Streaming Animation**: Simulates sequential model predictions with a fluid 260ms delay, letting the user watch the AI translate sign sequences live.
+*   **Context-Aware Translation**: Automatically flushes sign gloss sequences to a GPT-4o mini pipeline to generate grammatical English sentences, maintaining active conversation context.
 
 ---
 
-## 📁 Project Structure
+## 📸 Application Screenshots
 
-```
-signbridge/
-├── lib/
-│   ├── main.dart                   # App entry point
-│   ├── app.dart                    # MaterialApp configuration
-│   ├── core/
-│   │   ├── constants/              # App & model constants
-│   │   ├── errors/                 # Custom exceptions & failures
-│   │   └── utils/                  # Logger, image utils, permissions
-│   ├── models/                     # Data models
-│   ├── services/                   # Business logic services
-│   ├── repositories/               # Data access layer
-│   ├── providers/                  # Riverpod state management
-│   ├── screens/                    # App screens
-│   ├── widgets/                    # Reusable UI components
-│   └── themes/                     # Material Design 3 theme system
-├── assets/models/                  # TFLite models per language
-│   ├── asl/                        # model.tflite, labels.json, config.json
-│   ├── bsl/
-│   ├── ipsl/
-│   └── csl/
-├── model_training/                 # Python ML pipeline
-│   ├── train_gesture_model.py      # Model training script
-│   ├── create_dummy_models.py      # Placeholder model generator
-│   └── requirements.txt            # Python dependencies
-└── pubspec.yaml                    # Flutter configuration
+### Cinematic Landing Page
+![Cinematic Landing Page](./public/readme/landing_page.png)
+
+### Video Link Playback (YouTube Proxy)
+![YouTube Video Link Translation](./public/readme/video_link.png)
+
+### Video Upload Translation (Deaf Coffee Chat)
+![Local Video Upload Translation](./public/readme/uploaded_video.png)
+
+### Meet the Developers
+![Developer Profiles Grid](./public/readme/developers.png)
+
+---
+
+## ⚙️ System Architecture
+
+The following diagram illustrates the data flow from raw video frame capture to landmark coordinate normalization, LSTM sequence classification, and GPT-4o mini translation:
+
+```mermaid
+graph TD
+    A[Video Source: Webcam / Upload / YouTube] --> B[HTML5 Video / Player Component]
+    B --> C[MediaPipe Hand Landmarker]
+    C -->|Extracts 21 3D Coordinates per Hand| D[Coordinate Normalization Engine]
+    D -->|Scale & Wrist Alignment| E[30-Frame Sequence Buffer]
+    E --> F[TFLite LSTM Sequence Classifier]
+    F -->|Predicts Sign Glosses| G[Gloss Debounce & Buffer Manager]
+    G -->|Boundary / Pause Detected| H[Express Backend API Proxy]
+    H -->|Secure Request with Conversation History| I[OpenAI GPT-4o mini LLM]
+    I -->|Fluent English Translation| J[UI Translation History Panel]
 ```
 
 ---
 
-## 🚀 Installation
+## 🧠 Machine Learning & Data Pipeline
+
+### 1. Hand Landmark Extraction & Normalization
+*   **MediaPipe Hand Landmarker**: Extracts 21 3D coordinates `(x, y, z)` for each hand, representing joint nodes.
+*   **Normalization**: Coordinates are transformed relative to the wrist landmark coordinates to make the model invariant to translation, scale, and user distance from the camera:
+    $$X_{norm} = \frac{X - X_{wrist}}{Scale}$$
+
+### 2. LSTM Sequence Classifier
+*   **Model**: A Long Short-Term Memory (LSTM) recurrent neural network architecture designed to process time-series data.
+*   **Sliding Window**: Evaluates gestures using a sliding window of 30 consecutive video frames.
+*   **Weight File**: Loaded client-side via WebGL-accelerated TensorFlow.js (`lsa64_model.tflite`).
+
+### 3. Training Datasets
+*   **WLASL (Word-Level ASL)**: A comprehensive dataset containing thousands of ASL gloss videos for vocabulary learning.
+*   **LSA64 (Argentine Sign Language)**: 3,200 videos of 64 distinct sign phrases performed by native signers under varied lighting conditions.
+*   **ISL (Indian Sign Language)**: Curated landmark datasets for standard Indian Sign Language hand gestures.
+
+### 4. LLM Translation
+*   Raw predicted sign glosses are debounced and sent with the preceding translated sentence as history context to the **GPT-4o mini** engine, which infers word order, grammatical tenses, articles, and prepositions.
+
+---
+
+## 🌍 Social Impact & Inclusive Accessibility
+
+For the Deaf and Hard-of-Hearing community, simple tasks like traveling, ordering food, or attending hearing schools can present significant communication barriers. 
+
+SignBridge acts as a digital bridge:
+*   **Independent Communication**: Empowers deaf signers to express themselves in their native sign language and have it immediately read aloud or displayed in fluent English to a hearing person.
+*   **Adaptive Education**: Enables hearing classrooms or universities to accommodate deaf instructors and students without relying on expensive physical sign interpreters.
+*   **Cross-Border Integration**: Multi-language support allows travelers to learn and translate regional sign dialects (like Argentine Sign Language) dynamically on-the-go.
+
+---
+
+## 🚀 Setup & Execution
 
 ### Prerequisites
+*   Node.js (v18+)
+*   Python 3.10+ (with `yt-dlp` package installed for YouTube stream resolving)
 
-- [Flutter SDK](https://flutter.dev/docs/get-started/install) (3.44+)
-- [Android Studio](https://developer.android.com/studio) or Android SDK
-- Android device or emulator (API 24+)
-- Python 3.10+ (for model training only)
-
-### Setup
-
-1. **Clone and navigate:**
+### Installation
+1. Clone the repository:
    ```bash
-   cd signbridge
+   git clone https://github.com/AnuragChowdhury/sign-bridge.git
+   cd sign-bridge
+   ```
+2. Install frontend and backend dependencies:
+   ```bash
+   npm install
    ```
 
-2. **Install Flutter dependencies:**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Generate TFLite models (first time):**
-   ```bash
-   cd model_training
-   python -m venv .venv
-   .venv/Scripts/activate    # Windows
-   pip install -r requirements.txt
-   python create_dummy_models.py
-   cd ..
-   ```
-
-4. **Run on device:**
-   ```bash
-   flutter run
-   ```
-
-5. **Build release APK:**
-   ```bash
-   flutter build apk --release
-   ```
-
----
-
-## 🧠 TFLite Model Integration
-
-### Model Format
-
-Each sign language requires three files in `assets/models/{language}/`:
-
-| File | Description |
-|------|-------------|
-| `model.tflite` | TFLite classifier model |
-| `labels.json` | Maps output indices to gesture labels |
-| `config.json` | Model metadata and configuration |
-
-### Input/Output
-
-- **Input:** `Float32[1][63]` — 21 hand landmarks × 3 coordinates (x, y, z), normalized
-- **Output:** `Float32[1][N]` — Softmax probabilities over N gesture classes
-
-### Replacing Models
-
-1. Train your model to accept 63-float input (normalized landmarks)
-2. Export to TFLite format
-3. Place files in `assets/models/{language}/`
-4. Update `labels.json` with your class mappings
-5. Update `config.json` with model metadata
-6. Rebuild the app
-
----
-
-## 🎯 Training Custom Models
-
-### Using the Training Script
-
+### Running the App
+Start both the React dev server (port 5173) and the Express proxy backend (port 3001) concurrently:
 ```bash
-cd model_training
-python train_gesture_model.py \
-  --data path/to/landmarks.csv \
-  --language asl \
-  --epochs 100
+npm run dev:all
 ```
-
-### Data Format
-
-The training CSV should contain:
-- 63 feature columns: `x0, y0, z0, x1, y1, z1, ..., x20, y20, z20`
-- 1 label column: `label` (gesture name, e.g., "A", "B", "SPACE")
-
-### Recommended Datasets
-
-- [Kaggle: ASL Sign Detection Dataset](https://www.kaggle.com/datasets/sahithi-sss/asl-sign-detection-dataset)
-- [Kaggle: ASL Gesture Dataset (MediaPipe)](https://www.kaggle.com/datasets/gti-upm/asl-gesture-dataset-using-media-pipe)
-- [Google: Isolated Sign Language Recognition](https://www.kaggle.com/competitions/asl-signs)
-
----
-
-## 🛠️ Technology Stack
-
-| Component | Technology |
-|-----------|-----------|
-| Framework | Flutter 3.44+ |
-| Language | Dart 3.12+ |
-| State Management | Riverpod 3.3.2 |
-| ML Inference | TFLite Flutter 0.12.1 |
-| Hand Detection | MediaPipe Hand Landmarker |
-| Local Storage | Hive CE |
-| UI Design | Material Design 3 |
-| Camera | Flutter Camera Plugin |
-
----
-
-## 📋 Supported Sign Languages
-
-| Language | Code | Status |
-|----------|------|--------|
-| 🇺🇸 American Sign Language | `asl` | Placeholder model |
-| 🇬🇧 British Sign Language | `bsl` | Placeholder model |
-| 🇮🇳 Indo-Pakistani Sign Language | `ipsl` | Placeholder model |
-| 🇨🇳 Chinese Sign Language | `csl` | Placeholder model |
-
-To add a new language, create a folder under `assets/models/` with the three required files and add the language to the `SignLanguage` enum in `lib/models/sign_language.dart`.
-
----
-
-## 🐛 Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Camera black screen | Check camera permissions in device settings |
-| Model load failure | Verify model files exist in `assets/models/{lang}/` |
-| Low FPS | Reduce camera resolution in Settings |
-| No hand detected | Ensure good lighting and hand is fully visible |
-| App crashes on start | Run `flutter clean` then `flutter pub get` |
-
----
-
-## 📄 License
-
-This project is for educational and demonstration purposes.
-
----
-
-## 🙏 Acknowledgements
-
-- [MediaPipe](https://developers.google.com/mediapipe) by Google
-- [TensorFlow Lite](https://www.tensorflow.org/lite)
-- [Flutter](https://flutter.dev)
-- [Riverpod](https://riverpod.dev)
+*   **Frontend**: `http://localhost:5173/`
+*   **Backend Proxy**: `http://localhost:3001/`

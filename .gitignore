@@ -1,57 +1,35 @@
-# Flutter/Dart
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-.pub-cache/
-.pub/
-/build/
-*.iml
-
-# Android
-**/android/.gradle
-**/android/captures/
-**/android/gradlew
-**/android/gradlew.bat
-**/android/local.properties
-**/android/**/GeneratedPluginRegistrant.java
-**/android/key.properties
-*.jks
-
-# iOS (not used but included for completeness)
-**/ios/**/*.mode1v3
-**/ios/**/*.mode2v3
-**/ios/**/*.moved-aside
-**/ios/**/*.pbxuser
-**/ios/**/*.perspectivev3
-**/ios/Flutter/App.framework
-**/ios/Flutter/Flutter.framework
-**/ios/Flutter/Flutter.podspec
-**/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/ephemeral
-**/ios/Flutter/app.flx
-**/ios/Flutter/app.zip
-**/ios/Flutter/flutter_assets/
-**/ios/Pods/
-**/ios/Runner/GeneratedPluginRegistrant.*
-**/ios/ServiceDefinitions.json
-
-# IDE
-.idea/
-*.swp
-*.swo
-.vscode/
-
-# Python
-model_training/.venv/
-model_training/__pycache__/
-*.pyc
-*.pyo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Misc
+# Logs
+logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Python venv and heavy datasets
+.venv/
+__pycache__/
+*.pyc
+*.npz
+*.zip
 .env
+.env.example
+.agents/
+.metadata
