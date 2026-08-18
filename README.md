@@ -20,10 +20,11 @@ SignBridge is an advanced, AI-powered communication bridge designed to break dow
 ## 📸 Application Screenshots
 
 ### Cinematic Landing Page
-![Cinematic Landing Page](./public/readme/landing_page.png)
+![Cinematic Landing Page](./public/readme/video_link.png)
 
 ### Video Link Playback (YouTube Proxy)
-![YouTube Video Link Translation](./public/readme/video_link.png)
+![YouTube Video Link Translation](./public/readme/landing_page.png)
+
 
 ### Video Upload Translation (Deaf Coffee Chat)
 ![Local Video Upload Translation](./public/readme/uploaded_video.png)
