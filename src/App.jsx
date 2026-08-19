@@ -325,8 +325,8 @@ function App() {
               if (inputMode === INPUT_MODES.WEBCAM) {
                 // Live Webcam active action bypass
                 const now = Date.now();
-                // Ensure we don't conflict with pinch gestures (4s) and have a standard cooldown (8s) between random sentences
-                if (now - lastPinchTimeRef.current > 4000 && now - lastWebcamSentenceTimeRef.current > 8000) {
+                // Ensure we don't conflict with pinch gestures (4s) and have a standard cooldown (4s) between random sentences
+                if (now - lastPinchTimeRef.current > 4000 && now - lastWebcamSentenceTimeRef.current > 4000) {
                   lastWebcamSentenceTimeRef.current = now;
                   const randomIndex = Math.floor(Math.random() * RANDOM_SENTENCES.length);
                   const randomSentence = RANDOM_SENTENCES[randomIndex];
