@@ -147,10 +147,16 @@ app.get('/api/proxy-video', async (req, res) => {
       delete headers.referer;
       delete headers.origin;
 
-      const proxyReq = client.request(currentUrl, {
+      const requestOptions = {
         method: 'GET',
         headers: headers
-      }, (proxyRes) => {
+      };
+
+      if (parsedUrl.protocol === 'https:') {
+        requestOptions.rejectUnauthorized = false;
+      }
+
+      const proxyReq = client.request(currentUrl, requestOptions, (proxyRes) => {
         // Handle HTTP Redirects
         if ([301, 302, 303, 307, 308].includes(proxyRes.statusCode)) {
           const redirectUrl = proxyRes.headers.location;

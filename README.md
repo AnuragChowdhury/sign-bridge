@@ -1,70 +1,50 @@
-# SignBridge: Real-Time AI Sign Language Translator
+# SignBridge: Real-Time Multi-Language AI Sign Language Keyboard
 
-SignBridge is an advanced, AI-powered communication bridge designed to translate sign language gestures into fluent, grammatical, and context-aware English sentences. By extracting real-time hand landmarks from camera/video feeds, the system processes gesture sequences through a hybrid Deep Learning classifier (ResNet-80 + LSTM) running client-side, and outputs continuous text using LLM translation pipelines.
-
----
-
-## 🔍 Problem Statement
-
-For the Deaf and Hard-of-Hearing community, daily interactions in a hearing-centric society present significant barriers. Standard communication channels lack native translation capabilities for sign languages. Access to physical sign language interpreters is scarce, expensive, and not available on-demand. 
-
-Furthermore, existing digital recognition systems often focus solely on converting individual signs into isolated words (glosses), which lacks natural sentence structure, grammar, and tenses. This results in fragmented translation, making fluid conversation impossible. There is a critical need for an accessible, low-latency, multi-dialect sign-to-text keyboard that operates dynamically in the browser.
+SignBridge is an advanced, AI-powered communication keyboard designed to bridge the gap between the Deaf/Hard-of-Hearing communities and the hearing world. By extracting real-time hand landmarks from video feeds, the system processes gesture sequences through optimized deep learning models to predict sign glosses and translates them into fluent, context-aware English sentences using Large Language Models (LLMs).
 
 ---
 
-## 🎯 Objectives
+## 🎯 Problem Statement
 
-*   **Multi-Language Dialect Detection**: Automatically detect and translate gestures across several regional sign languages, including American Sign Language (ASL), Word-level ASL (WSL), Argentine Sign Language (ArSL/LSA64), and Indian Sign Language (ISL).
-*   **Low-Latency Client-Side Inference**: Perform real-time landmark extraction and neural network sequence classification directly in the browser to protect user privacy and eliminate heavy cloud server dependencies.
-*   **Context-Aware Translation**: Bridge the gap between individual sign glosses and natural spoken English by utilizing Large Language Models (LLMs) to infer sentence structure, grammar, articles, and conversation flow.
-*   **Flexible Source Integration**: Support translation across three distinct input modes: live camera streams (Webcam), pre-recorded local files (Video Upload), and online video streaming proxy streams (Video Link).
+Communicating in a world dominated by spoken and written language poses a continuous challenge for the Deaf and Hard-of-Hearing communities. Standard sign-to-speech translators are often:
+1.  **Limited to Single Dialects**: Most research focuses exclusively on a single sign language (like ASL), ignoring regional dialects (such as Indian or Argentine sign languages).
+2.  **Lacking Continuous Context**: Translators typically output individual sign glosses (word-for-word tokens) rather than fluid, grammatically complete sentences. This results in disjointed or unnatural translations.
+3.  **High Computational Complexity**: Traditional systems require massive spatial video processing models that cannot run locally or client-side on consumer web browsers, leading to server dependency and high latency.
+
+---
+
+## 🚀 Objectives
+
+*   **Real-Time Local Inference**: Achieve sub-30ms landmark extraction and TFLite model execution locally in the browser to ensure low-latency sign detection.
+*   **Multi-Language Dialect Classification**: Build a swappable classification pipeline supporting American Sign Language (ASL), Argentine Sign Language (ArSL/LSA64), Word-level ASL (WSL), and Indian Sign Language (ISL).
+*   **Contextual English Translation**: Integrate a secure backend translation proxy utilizing GPT-4o mini to convert predicted sign gloss sequences into natural, context-aware sentences.
+*   **Cross-Platform Accessibility**: Develop three flexible input modes (Live Webcam, Video Upload, and YouTube/Vimeo links via proxy) to handle any video source dynamically.
 
 ---
 
 ## 📊 Dataset Used
 
-The hybrid spatial-temporal models are trained on the following core datasets:
-*   **WLASL (Word-Level ASL) Dataset**: A comprehensive, large-scale English sign language dataset containing thousands of videos of word-level ASL gestures, used to establish vocabulary representation.
-*   **LSA64 (Argentine Sign Language) Dataset**: A native Argentine Sign Language dataset containing 3,200 videos of 64 distinct gesture phrases performed by multiple signers under diverse lighting orientations and backgrounds.
-*   **Indian Sign Language (ISL) Dataset**: A curated collection of Indian Sign Language gesture videos representing everyday words, phrases, and alphanumeric characters.
+The hybrid sequence models were trained using three primary sign language datasets:
+1.  **WLASL (Word-Level ASL)**: A comprehensive dataset containing thousands of ASL gloss videos used to train vocabulary and word-level gestures.
+2.  **LSA64 (Argentine Sign Language)**: 3,200 high-quality videos of 64 distinct sign phrases performed by native signers under varied illumination and background scenarios.
+3.  **ISL (Indian Sign Language)**: Specialized landmark datasets representing standardized Indian Sign Language hand configurations and numerical gestures.
 
 ---
 
 ## 🛠️ Technologies/Libraries Used
 
-*   **Frontend UI**: React (v18), Vite, Vanilla CSS.
-*   **Computer Vision & Landmark Tracking**: MediaPipe Hand Landmarker API (for real-time 3D coordinate mapping).
-*   **Inference Engine**: TensorFlow.js / TFJS-TFLite (supporting hardware-accelerated client-side model execution).
-*   **Deep Learning Training & Optimization**: PyTorch, ONNX Runtime (for model definition, optimization, and serialization).
-*   **Backend Proxy Server**: Node.js, Express, `yt-dlp` (for YouTube stream link resolution).
-*   **Translation Engine**: OpenAI API (GPT-4o mini) accessed via secure backend proxy endpoints.
+*   **Frontend**: React (Vite), HTML5 Video Canvas, Vanilla CSS (Glassmorphism design tokens).
+*   **AI Landmark Extraction**: MediaPipe Tasks Vision (`@mediapipe/tasks-vision`).
+*   **Deep Learning Runtimes**: TensorFlow.js (`@tensorflow/tfjs`), TF.js TFLite (`@tensorflow/tfjs-tflite`).
+*   **Backend Proxy Server**: Node.js, Express, Cors, Dotenv, Child Process (exec wrapper for Python `yt-dlp`).
+*   **LLM Translator**: OpenAI Node API (GPT-4o mini).
+*   **Evaluation Plotting**: Matplotlib, NumPy (used to analyze training metrics and draw dialect comparisons).
 
 ---
 
 ## 🧠 Methodology
 
-### 1. Hybrid Model Architecture (ResNet-80 + LSTM Fusion)
-To extract high-fidelity spatial frames and capture joint movement transitions over time, the network implements a hybrid deep learning model:
-*   **ResNet-80 (Spatial Feature Extractor)**: A deep 80-layer Residual Convolutional Neural Network. It processes individual video frames to extract a 512-dimensional spatial visual features vector, capturing joint orientations, finger placement shapes, and posturing.
-*   **LSTM (Temporal sequence Classifier)**: A Long Short-Term Memory recurrent neural network that processes a temporal sliding window of 30 frames to track physical joint motion trajectories.
-*   **Feature Fusion**: The spatial feature vectors from ResNet-80 are fused (concatenated) with the normalized 3D hand coordinates extracted by MediaPipe on every frame, creating a unified representation for the LSTM classifier.
-
-### 2. ONNX Portability & Client-side WebGL Deployment
-*   **ONNX (Open Neural Network Exchange)**: Once trained, the combined PyTorch model is exported to the **ONNX** representation. This standardizes deep learning operators for cross-platform compliance.
-*   **TFLite Conversion**: The ONNX model is converted into an optimized WebGL-ready client-side format (`lsa64_model.tflite`) that executes in the browser at 60 FPS using hardware acceleration.
-
-### 3. Model Training & Landmark Serialization Pipeline
-The system pipelines the training and serialization steps in the following order:
-*   **Landmark Tracking & Extraction**: During preprocessing, training videos are passed through MediaPipe. For each video frame, the 21 3D landmarks for both hands are extracted.
-*   **Landmark Serialization (.npz)**: The coordinate sequence for each video is stored as a structured NumPy array of shape `[num_frames, 42, 3]` and saved into compressed `.npz` file archives (such as `lsa64_landmarks.npz`), mapping features directly to sign gloss target indexes.
-*   **Feature Extraction**: Simultaneously, raw video frames are processed through the ResNet-80 network to extract spatial feature vector sequences.
-*   **Dataset Loading & Normalization**: The `.npz` landmark datasets are loaded into PyTorch/TensorFlow. Landmarks are normalized relative to the wrist joints:
-    $$X_{norm} = \frac{X - X_{wrist}}{Scale}$$
-*   **Fusion Training**: The temporal landmark sequences and spatial feature vectors are concatenated and trained end-to-end on GPU clusters using cross-entropy loss and the AdamW optimizer.
-*   **Model Weights Serialization**: Once training converges, model weights are saved into PyTorch `.pth` files.
-*   **ONNX Conversion & Deployment**: The `.pth` model is serialized into an ONNX representation, which is optimized for runtime operators and converted into a web-ready client-side model file.
-
-### 4. System Architecture Diagram
+The following flowchart details the end-to-end data processing pipeline from video capture to final translation:
 
 ```mermaid
 graph TD
@@ -72,12 +52,28 @@ graph TD
     B --> C[MediaPipe Hand Landmarker]
     C -->|Extracts 21 3D Coordinates per Hand| D[Coordinate Normalization Engine]
     D -->|Scale & Wrist Alignment| E[30-Frame Sequence Buffer]
-    E --> F[TFLite LSTM Sequence Classifier]
+    E --> F[Hybrid ResNet-80 + LSTM Classifier]
     F -->|Predicts Sign Glosses| G[Gloss Debounce & Buffer Manager]
     G -->|Boundary / Pause Detected| H[Express Backend API Proxy]
     H -->|Secure Request with Conversation History| I[OpenAI GPT-4o mini LLM]
     I -->|Fluent English Translation| J[UI Translation History Panel]
 ```
+
+### 1. Hand Landmark Extraction & Coordinate Normalization
+For every incoming video frame, MediaPipe extracts 21 3D landmarks `(x, y, z)` representing hand joints. To make the model invariant to user positioning, hand sizes, and distances from the camera, coordinates are normalized relative to the wrist coordinates:
+$$X_{norm} = \frac{X - X_{wrist}}{Scale}$$
+
+### 2. Hybrid Model Architecture (ResNet-80 + LSTM Fusion) & ONNX
+*   **ResNet-80 (Spatial Feature Extractor)**: An 80-layer Deep Residual Convolutional Neural Network used as a spatial feature extractor on individual frames to capture hand postures, knuckle bends, and shapes.
+*   **LSTM (Temporal Classifier)**: A Long Short-Term Memory recurrent neural network that processes a temporal sequence window (30 consecutive frames) to evaluate motion dynamics.
+*   **Feature Fusion**: Spatial features from ResNet-80 are concatenated with the MediaPipe coordinate vectors on every frame and fed into the LSTM layer.
+*   **ONNX Serialization**: The combined network is serialized and exported to **ONNX** (Open Neural Network Exchange) format to ensure cross-platform compatibility, and compiled to TFLite for fast in-browser CPU/GPU hardware acceleration.
+
+### 3. Model Training & Serialization Pipeline
+1.  **Extract Landmarks**: Training videos are processed with MediaPipe to generate joint coordinates.
+2.  **Serialize Coordinates (.npz)**: The coordinates are stored as NumPy tensors of shape `[num_frames, 42, 3]` and saved in compressed `.npz` archives (e.g. `lsa64_landmarks.npz`).
+3.  **End-to-End Fusion Training**: The landmark vectors and ResNet-80 spatial weights are fused and trained in PyTorch using Cross-Entropy loss and the AdamW optimizer.
+4.  **Save Weights & ONNX Export**: Trained weights are saved in `.pth` files and converted to ONNX and web-ready models.
 
 ---
 
@@ -98,8 +94,8 @@ graph TD
    npm install
    ```
 
-### Running the Application
-Start both the React frontend dev server (port 5173) and the Express proxy backend (port 3001) concurrently:
+### Running the App
+Start the React dev server and the Express proxy backend concurrently:
 ```bash
 npm run dev:all
 ```
@@ -108,43 +104,36 @@ npm run dev:all
 
 ## 📈 Results
 
-### 1. Model Evaluation Metrics
-To evaluate performance, the system is tested on Accuracy, Precision, Recall, and Macro F1-Score:
-*   **Categorical Accuracy**: Evaluates classification baseline accuracy.
-*   **Precision**: Essential to avoid sending incorrect sign gloss predictions to the translation engine.
-*   **Recall (Sensitivity)**: Ensures no signs are missed or treated as static background.
-*   **Macro F1-Score**: The harmonic mean of Precision and Recall. It is our primary model selection metric due to class imbalances in sign datasets.
+### 1. Model Training & Validation Performance
+The hybrid ResNet-80 + LSTM model converges efficiently, achieving high accuracy with minimal validation loss:
 
-#### Quantitative Model Performance Summary:
-| Dialect | Categorical Accuracy (%) | Precision (%) | Recall (%) | Macro F1-Score (%) |
+![Model Loss and Accuracy Plots](./public/readme/loss_accuracy.png)
+
+### 2. Quantitative Performance Table
+
+| Dialect Dataset | Categorical Accuracy | Precision | Recall | Macro F1-Score |
 | :--- | :---: | :---: | :---: | :---: |
 | **ASL (WLASL)** | 92.4% | 91.8% | 90.5% | 91.1% |
 | **ArSL (LSA64)** | 94.2% | 93.5% | 92.8% | 93.1% |
 | **ISL** | 91.8% | 90.5% | 89.2% | 89.8% |
 
-### 2. Evaluation Curves and Metrics Graphs
-The training progression (Loss vs. Accuracy curves) and performance comparisons by sign language dialect are plotted below:
+### 3. Performance Metrics Comparison by Dialect
+Comparing the precision, recall, accuracy, and F1-score highlights the stability of the model across different sign language structures:
 
-#### Model Training & Validation Progression Curves
-![Model Loss & Accuracy Curves](./public/readme/loss_accuracy.png)
-
-#### Dialect Performance Metrics Comparison
 ![Dialect Metrics Comparison](./public/readme/metrics_comparison.png)
 
 ---
 
-### 3. Application Screenshots
+## 📸 Interface Screenshots
 
-#### Cinematic Landing Page
-![Cinematic Landing Page](./public/readme/video_link.png)
+### Cinematic Landing Page
+![Cinematic Landing Page](./public/readme/landing_page.png)
 
-#### Video Link Playback 
-![YouTube Video Link Translation](./public/readme/landing_page.png)
+### Video Link Playback (YouTube Proxy)
+![YouTube Video Link Translation](./public/readme/video_link.png)
 
+### Video Upload Translation (Deaf Coffee Chat)
+![Local Video Upload Translation](./public/readme/uploaded_video.png)
 
-#### Video Upload Translation 
-![Local Video Upload Translation](./public/readme/developers.png)
-
-#### Meet the Developers
-![Developer Profiles Grid](./public/readme/uploaded_video.png)
-
+### Meet the Developers
+![Developer Profiles Grid](./public/readme/developers.png)
