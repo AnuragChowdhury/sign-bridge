@@ -1,4 +1,4 @@
-# SignBridge: Real-Time Multi-Language AI Sign Language Keyboard
+# SignBridge: Real-Time AI Sign Language Translator
 
 SignBridge is an advanced, AI-powered communication bridge designed to translate sign language gestures into fluent, grammatical, and context-aware English sentences. By extracting real-time hand landmarks from camera/video feeds, the system processes gesture sequences through a hybrid Deep Learning classifier (ResNet-80 + LSTM) running client-side, and outputs continuous text using LLM translation pipelines.
 
