@@ -1,4 +1,4 @@
-# SignBridge: Real-Time Multi-Language AI Sign Language Keyboard
+# SignBridge: Real-Time AI Sign Language Translation
 
 SignBridge is an advanced, AI-powered communication keyboard designed to bridge the gap between the Deaf/Hard-of-Hearing communities and the hearing world. By extracting real-time hand landmarks from video feeds, the system processes gesture sequences through optimized deep learning models to predict sign glosses and translates them into fluent, context-aware English sentences using Large Language Models (LLMs).
 
@@ -126,14 +126,16 @@ Comparing the precision, recall, accuracy, and F1-score highlights the stability
 
 ## 📸 Interface Screenshots
 
-### Cinematic Landing Page
-![Cinematic Landing Page](./public/readme/landing_page.png)
+### Landing Page
+![Cinematic Landing Page](./public/readme/video_link.png)
 
-### Video Link Playback (YouTube Proxy)
-![YouTube Video Link Translation](./public/readme/video_link.png)
+### Video Link Playback 
+![YouTube Video Link Translation](./public/readme/landing_page.png)
 
-### Video Upload Translation (Deaf Coffee Chat)
-![Local Video Upload Translation](./public/readme/uploaded_video.png)
+
+### Video Upload Translation 
+![Local Video Upload Translation](./public/readme/developers.png)
 
 ### Meet the Developers
-![Developer Profiles Grid](./public/readme/developers.png)
+![Developer Profiles Grid](./public/readme/uploaded_video.png)
+
