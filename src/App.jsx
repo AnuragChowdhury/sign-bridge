@@ -191,7 +191,7 @@ function App() {
     const dRing = getDist(thumb, ring);
     const dPinky = getDist(thumb, pinky);
 
-    const PINCH_THRESH = 0.035;
+    const PINCH_THRESH = 0.075;
 
     if (dIndex < PINCH_THRESH) {
       lastPinchTimeRef.current = now;
@@ -330,6 +330,7 @@ function App() {
                   lastWebcamSentenceTimeRef.current = now;
                   const randomIndex = Math.floor(Math.random() * RANDOM_SENTENCES.length);
                   const randomSentence = RANDOM_SENTENCES[randomIndex];
+                  console.log(`[Webcam Action Bypass] Triggered random sentence #${randomIndex + 1}:`, randomSentence);
                   mockUtterance(randomSentence);
                 }
               } else {
