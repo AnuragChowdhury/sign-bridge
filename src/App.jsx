@@ -191,7 +191,7 @@ function App() {
     const dRing = getDist(thumb, ring);
     const dPinky = getDist(thumb, pinky);
 
-    const PINCH_THRESH = 0.075;
+    const PINCH_THRESH = 0.035;
 
     if (dIndex < PINCH_THRESH) {
       lastPinchTimeRef.current = now;
