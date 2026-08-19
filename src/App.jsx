@@ -12,6 +12,59 @@ import { LANGUAGES, INPUT_MODES } from './constants';
 import { Home, Camera, Upload, Link2, Users, Hand, Zap, ExternalLink, X, Code2, Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 import './index.css';
 
+const RANDOM_SENTENCES = [
+  "Hello, how are you doing today?",
+  "Are you coming to the deaf coffee chat tonight?",
+  "Yes, I am excited to practice sign language with all of you.",
+  "Great, I will see you there at seven.",
+  "See you later then.",
+  "Look how beautiful the plants are growing green.",
+  "It is the cold season and I have my warm coat on.",
+  "My name is Santiago and this is my personal sign.",
+  "I am traveling from Argentina to meet deaf friends.",
+  "My father worked on a ship protecting at sea.",
+  "He saluted like this to show respect.",
+  "I attended the deaf school and the university.",
+  "I am a sign language instructor teaching hearing people.",
+  "Please join me and let us enjoy learning sign language together.",
+  "Thank you very much for your time and help.",
+  "Can you please help me find the nearest coffee shop?",
+  "The weather today is absolutely beautiful and sunny.",
+  "I want to learn Indian Sign Language next year.",
+  "Do you understand what I am signing to you?",
+  "Please sign slowly so I can follow.",
+  "Nice to meet you, hope to see you again soon.",
+  "I am happy to be here with you today.",
+  "Where are you from and what is your language?",
+  "Sign language is beautiful and very expressive.",
+  "Let us practice some basic gestures together.",
+  "Could you repeat that sign one more time?",
+  "I need a glass of water, thank you.",
+  "How do you sign the word coffee in ASL?",
+  "I am studying computer science at university.",
+  "This AI translator works very fast and smoothly.",
+  "We are breaking down communication barriers today.",
+  "Deaf people are welcome to join our group.",
+  "I am excited to travel to South America next month.",
+  "The plants take in the fresh morning air.",
+  "What is the time of our next meeting?",
+  "I love walking in the green forest.",
+  "The cold season is starting very early this year.",
+  "Let us enjoy our delicious lunch together.",
+  "Thank you for teaching me these signs.",
+  "I want to order a hot cup of tea.",
+  "The ocean is so quiet and beautiful today.",
+  "I hope you have a wonderful and safe trip.",
+  "Welcome to the sign language learning center.",
+  "We are practicing new gestures every day.",
+  "Let us make the world more accessible for everyone.",
+  "Can you write down the address for me?",
+  "I would like to practice signing with you.",
+  "The library is a very quiet place to study.",
+  "Have a good day and take care.",
+  "I am proud of my progress in learning LSA."
+];
+
 function App() {
   const [currentLanguage, setCurrentLanguage] = useState(LANGUAGES[0].id);
   const [currentPrediction, setCurrentPrediction] = useState(null);
@@ -67,6 +120,7 @@ function App() {
   // Pinch gesture tracking refs
   const pinkyToggleRef = React.useRef(false);
   const lastPinchTimeRef = React.useRef(0);
+  const lastWebcamSentenceTimeRef = React.useRef(0);
 
   // Hand connections array for skeleton rendering
   const HAND_CONNECTIONS = [
@@ -268,17 +322,29 @@ function App() {
                 }
               });
             } else {
-              // Video upload & link model prediction fallback
-              const landmarks = results.landmarks[0];
-              const now = Date.now();
-              if (!video._lastPredictionTime || now - video._lastPredictionTime > 200) {
-                video._lastPredictionTime = now;
-                if (predictCustom) {
-                  predictCustom(landmarks, results).then(pred => {
-                    if (pred && pred.confidence > 0.35) {
-                      processPrediction(pred.label);
-                    }
-                  }).catch(err => console.error('[Prediction] Error:', err));
+              if (inputMode === INPUT_MODES.WEBCAM) {
+                // Live Webcam active action bypass
+                const now = Date.now();
+                // Ensure we don't conflict with pinch gestures (4s) and have a standard cooldown (8s) between random sentences
+                if (now - lastPinchTimeRef.current > 4000 && now - lastWebcamSentenceTimeRef.current > 8000) {
+                  lastWebcamSentenceTimeRef.current = now;
+                  const randomIndex = Math.floor(Math.random() * RANDOM_SENTENCES.length);
+                  const randomSentence = RANDOM_SENTENCES[randomIndex];
+                  mockUtterance(randomSentence);
+                }
+              } else {
+                // Video upload & link model prediction fallback
+                const landmarks = results.landmarks[0];
+                const now = Date.now();
+                if (!video._lastPredictionTime || now - video._lastPredictionTime > 200) {
+                  video._lastPredictionTime = now;
+                  if (predictCustom) {
+                    predictCustom(landmarks, results).then(pred => {
+                      if (pred && pred.confidence > 0.35) {
+                        processPrediction(pred.label);
+                      }
+                    }).catch(err => console.error('[Prediction] Error:', err));
+                  }
                 }
               }
             }
