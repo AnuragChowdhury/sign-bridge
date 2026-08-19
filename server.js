@@ -141,11 +141,12 @@ app.get('/api/proxy-video', async (req, res) => {
       const parsedUrl = new URL(currentUrl);
       const client = parsedUrl.protocol === 'https:' ? https : http;
 
-      // Clean headers to bypass CORS/hotlinking restrictions (e.g. referer/origin)
-      const headers = { ...req.headers };
-      delete headers.host;
-      delete headers.referer;
-      delete headers.origin;
+      // Clean headers to bypass CORS and prevent 403 blocks from video CDNs
+      const headers = {};
+      if (req.headers['range']) {
+        headers['range'] = req.headers['range'];
+      }
+      headers['user-agent'] = req.headers['user-agent'] || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
       const requestOptions = {
         method: 'GET',
